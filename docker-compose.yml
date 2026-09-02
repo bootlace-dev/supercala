@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  supercala-postgres:
+    image: postgres:16-alpine
+    container_name: supercala-postgres
+    environment:
+      POSTGRES_DB: supercala
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    command: >
+      postgres
+      -c deadlock_timeout=50ms
+      -c lock_timeout=5000ms
+      -c max_connections=200
+      -c shared_buffers=512MB
+      -c work_mem=16MB
+      -c commit_delay=1000
+      -c autovacuum_vacuum_scale_factor=0.05
+    volumes:
+      - supercala_pgdata:/var/lib/postgresql/data
+
+volumes:
+  supercala_pgdata:

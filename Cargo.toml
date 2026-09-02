@@ -1,0 +1,41 @@
+[package]
+name = "supercala"
+version = "0.1.0"
+edition = "2021"
+authors = ["bootlace-dev <bootlace-dev@users.noreply.github.com>"]
+description = "High-Assurance Concurrency Fuzzer & Invariant Validator for Bitcoin Double-Entry Ledgers (Galoy/Cala)"
+license = "Apache-2.0"
+
+[dependencies]
+# Async Runtime & Concurrency
+tokio = { version = "1.38", features = ["full"] }
+futures = "0.3"
+
+# Database & SQL Engine
+sqlx = { version = "0.7", default-features = false, features = [
+    "runtime-tokio-rustls",
+    "postgres",
+    "uuid",
+    "rust_decimal",
+    "chrono",
+    "macros",
+    "migrate"
+] }
+
+# Financial Decimal & Identifiers
+rust_decimal = { version = "1.35", features = ["serde", "maths"] }
+uuid = { version = "1.8", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+# Structured Error Handling & Domain Types
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Observability & Structured Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"] }
+
+# CLI & Random Jitter Backoff
+clap = { version = "4.5", features = ["derive"] }
+rand = "0.8"

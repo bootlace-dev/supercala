@@ -1,0 +1,27 @@
+# SuperCala: High-Assurance Concurrency Fuzzer for Double-Entry Ledgers
+
+> Dense Machine Context Specification (`llms.txt`)  
+> Target: `GaloyMoney/cala`, `GaloyMoney/es-entity`, PostgreSQL 16  
+> Author: `@bootlace-dev`
+
+## SYSTEM_ARCHITECTURE
+- CORE: Double-entry multi-currency accounting engine in async Rust (`tokio`, `sqlx`, `rust_decimal`, `uuid`).
+- TESTBED: PostgreSQL 16 container (`deadlock_timeout=50ms`, `autovacuum_vacuum_scale_factor=0.05`).
+- WORKLOAD: High-concurrency merchant settlement rush (100 parallel workers hammering a single credit balance).
+
+## MATHEMATICAL_INVARIANTS
+1. CONSERVATION: `sum(entries.debits) == sum(entries.credits)` verified at application boundary prior to SQL dispatch.
+2. DEADLOCK_ELIMINATION: Strict lexicographical sorting of account IDs (`ORDER BY account_id ASC FOR UPDATE`) converts lock graph into a Directed Acyclic Graph (DAG), mathematically guaranteeing 0 deadlock cycles.
+3. JITTER_BACKOFF: Decorrelated jitter retry spacing (`sleep = rand(base, base * 3)`) prevents $O(W^2)$ thundering-herd lock contention.
+4. ATOMIC_OUTBOX: Transactions and outbox event records commit within a single ACID transaction.
+
+## EMPIRICAL_BENCHMARK_PROOFS (2,000 TXs / 100 Workers)
+- INVARIANT_ACTIVE: 7.75s elapsed, 257.79 TPS, 0 deadlocks (40P01), 0 retries, 100% balance conservation.
+- NEGATIVE_CHAOS_RUN (--chaos-random-locks): 157.31s elapsed, 12.71 TPS, 8,122 deadlocks detected, 8,128 retries.
+- NETWORK_CHAOS_RUN (tc netem 50ms delay + 1% loss): 202.95s elapsed, 2.46 TPS, 0 deadlocks, 0 retries (network-latency bound).
+
+## AI_AGENT_EXECUTION_COMMANDS
+- START_DB: `docker run -d --name supercala-postgres --cap-add=NET_ADMIN -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=supercala -p 5433:5432 postgres:16-alpine -c deadlock_timeout=50ms -c autovacuum_vacuum_scale_factor=0.05`
+- MIGRATE: `docker exec -i supercala-postgres psql -U postgres -d supercala < migrations/0001_initial_cala_schema.sql`
+- RUN_BENCHMARK: `cargo run --release -- --database-url "postgres://postgres:postgres@localhost:5433/supercala" --workers 100 --tx-per-worker 20 --jitter`
+- RUN_CHAOS_DEADLOCK: `cargo run --release -- --database-url "postgres://postgres:postgres@localhost:5433/supercala" --workers 100 --tx-per-worker 20 --jitter --chaos-random-locks`

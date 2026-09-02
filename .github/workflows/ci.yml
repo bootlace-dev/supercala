@@ -1,0 +1,56 @@
+name: SuperCala CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    name: Build & Invariant Suite
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: supercala
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check Formatting
+        run: cargo fmt --check
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Apply PostgreSQL Schema Migrations
+        run: |
+          PGPASSWORD=postgres psql -h localhost -p 5433 -U postgres -d supercala < migrations/0001_initial_cala_schema.sql
+
+      - name: Run Integration Edge Case & Boundary Suite
+        run: cargo test --test edge_cases_and_limits -- --nocapture
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5433/supercala"
+
+      - name: Run Baseline Concurrency Benchmark (50 Workers / 500 TXs)
+        run: cargo run --release -- --database-url "postgres://postgres:postgres@localhost:5433/supercala" --workers 50 --tx-per-worker 10 --jitter
