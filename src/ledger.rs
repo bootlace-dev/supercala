@@ -69,14 +69,12 @@ impl Ledger {
         }
 
         // Step 2: Begin ACID PostgreSQL Transaction
-        let mut tx: Transaction<'_, Postgres> = self.pool.begin().await.map_err(SuperCalaError::from_sqlx)?;
+        let mut tx: Transaction<'_, Postgres> =
+            self.pool.begin().await.map_err(SuperCalaError::from_sqlx)?;
 
         // Step 3: [PROVENANCE: Art of PG Ch. 16] Lock Ordering Invariant
-        let mut unique_account_ids: Vec<Uuid> = params
-            .entries
-            .iter()
-            .map(|e| e.account_id)
-            .collect();
+        let mut unique_account_ids: Vec<Uuid> =
+            params.entries.iter().map(|e| e.account_id).collect();
         unique_account_ids.sort();
         unique_account_ids.dedup();
 
@@ -168,42 +166,38 @@ impl Ledger {
 
             // Update materialized balance snapshot
             let update_result = match entry.entry_type {
-                EntryType::Debit => {
-                    sqlx::query(
-                        r#"
+                EntryType::Debit => sqlx::query(
+                    r#"
                         UPDATE cala_balances
                         SET settled_debits = settled_debits + $1,
                             version = version + 1,
                             modified_at = NOW()
                         WHERE account_id = $2 AND currency = $3 AND layer = $4
                         "#,
-                    )
-                    .bind(entry.units)
-                    .bind(entry.account_id)
-                    .bind(&entry.currency)
-                    .bind(&entry.layer)
-                    .execute(&mut *tx)
-                    .await
-                    .map_err(SuperCalaError::from_sqlx)?
-                }
-                EntryType::Credit => {
-                    sqlx::query(
-                        r#"
+                )
+                .bind(entry.units)
+                .bind(entry.account_id)
+                .bind(&entry.currency)
+                .bind(&entry.layer)
+                .execute(&mut *tx)
+                .await
+                .map_err(SuperCalaError::from_sqlx)?,
+                EntryType::Credit => sqlx::query(
+                    r#"
                         UPDATE cala_balances
                         SET settled_credits = settled_credits + $1,
                             version = version + 1,
                             modified_at = NOW()
                         WHERE account_id = $2 AND currency = $3 AND layer = $4
                         "#,
-                    )
-                    .bind(entry.units)
-                    .bind(entry.account_id)
-                    .bind(&entry.currency)
-                    .bind(&entry.layer)
-                    .execute(&mut *tx)
-                    .await
-                    .map_err(SuperCalaError::from_sqlx)?
-                }
+                )
+                .bind(entry.units)
+                .bind(entry.account_id)
+                .bind(&entry.currency)
+                .bind(&entry.layer)
+                .execute(&mut *tx)
+                .await
+                .map_err(SuperCalaError::from_sqlx)?,
             };
 
             if update_result.rows_affected() == 0 {

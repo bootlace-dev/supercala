@@ -19,19 +19,20 @@ pub enum SuperCalaError {
         total_credits: Decimal,
     },
 
-    #[error("Invalid entry units for account '{account_id}': units must be positive (got {units})")]
-    InvalidEntryUnits {
-        account_id: Uuid,
-        units: Decimal,
-    },
+    #[error(
+        "Invalid entry units for account '{account_id}': units must be positive (got {units})"
+    )]
+    InvalidEntryUnits { account_id: Uuid, units: Decimal },
 
-    #[error("Empty transaction '{tx_id}': transaction must contain at least one balanced entry pair")]
-    EmptyTransaction {
-        tx_id: Uuid,
-    },
+    #[error(
+        "Empty transaction '{tx_id}': transaction must contain at least one balanced entry pair"
+    )]
+    EmptyTransaction { tx_id: Uuid },
 
     #[allow(dead_code)]
-    #[error("Insufficient funds in account '{account_id}': required {required}, available {available}")]
+    #[error(
+        "Insufficient funds in account '{account_id}': required {required}, available {available}"
+    )]
     InsufficientBalance {
         account_id: Uuid,
         required: Decimal,
@@ -43,10 +44,7 @@ pub enum SuperCalaError {
 
     #[allow(dead_code)]
     #[error("Optimistic Concurrency Control (OCC) collision on entity '{entity_id}' at sequence {attempted_seq}")]
-    OccCollision {
-        entity_id: Uuid,
-        attempted_seq: i32,
-    },
+    OccCollision { entity_id: Uuid, attempted_seq: i32 },
 
     #[error("PostgreSQL lock wait timeout (SQLSTATE 55P03) on entity '{0}'")]
     LockTimeout(Uuid),

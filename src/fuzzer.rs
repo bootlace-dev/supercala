@@ -148,13 +148,19 @@ impl Fuzzer {
                                     SuperCalaError::Sqlx(sqlx::Error::Database(db_err)) => {
                                         match db_err.code().as_deref() {
                                             Some("40P01") => {
-                                                metrics.total_deadlocks.fetch_add(1, Ordering::Relaxed);
+                                                metrics
+                                                    .total_deadlocks
+                                                    .fetch_add(1, Ordering::Relaxed);
                                             }
                                             Some("55P03") => {
-                                                metrics.total_lock_timeouts.fetch_add(1, Ordering::Relaxed);
+                                                metrics
+                                                    .total_lock_timeouts
+                                                    .fetch_add(1, Ordering::Relaxed);
                                             }
                                             Some("40001") => {
-                                                metrics.total_occ_conflicts.fetch_add(1, Ordering::Relaxed);
+                                                metrics
+                                                    .total_occ_conflicts
+                                                    .fetch_add(1, Ordering::Relaxed);
                                             }
                                             _ => {}
                                         }

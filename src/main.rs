@@ -18,10 +18,18 @@ use tracing_subscriber::FmtSubscriber;
 use uuid::Uuid;
 
 #[derive(Parser, Debug)]
-#[command(author, version, about = "SuperCala: Bitcoin Double-Entry Ledger Concurrency Fuzzer")]
+#[command(
+    author,
+    version,
+    about = "SuperCala: Bitcoin Double-Entry Ledger Concurrency Fuzzer"
+)]
 struct Args {
     /// PostgreSQL connection URL
-    #[arg(short, long, default_value = "postgres://postgres:postgres@localhost:5433/supercala")]
+    #[arg(
+        short,
+        long,
+        default_value = "postgres://postgres:postgres@localhost:5433/supercala"
+    )]
     database_url: String,
 
     /// Number of concurrent worker tasks
@@ -144,7 +152,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         payer_ids.push(payer_id);
     }
 
-    info!(payer_count = payer_ids.len(), "Seeded test accounts. Spawning fuzzer...");
+    info!(
+        payer_count = payer_ids.len(),
+        "Seeded test accounts. Spawning fuzzer..."
+    );
 
     let config = FuzzerConfig {
         num_workers: args.workers,

@@ -36,8 +36,16 @@ async fn test_phase4_mathematical_precision_and_limits() -> Result<(), Box<dyn s
     let acc2_id = Uuid::new_v4();
 
     for (id, code, name) in [
-        (acc1_id, format!("ACC1_{}", Uuid::new_v4().simple()), "Test Account 1"),
-        (acc2_id, format!("ACC2_{}", Uuid::new_v4().simple()), "Test Account 2"),
+        (
+            acc1_id,
+            format!("ACC1_{}", Uuid::new_v4().simple()),
+            "Test Account 1",
+        ),
+        (
+            acc2_id,
+            format!("ACC2_{}", Uuid::new_v4().simple()),
+            "Test Account 2",
+        ),
     ] {
         sqlx::query(
             r#"
@@ -155,7 +163,10 @@ async fn test_phase4_mathematical_precision_and_limits() -> Result<(), Box<dyn s
     .execute(&mut *tx)
     .await;
 
-    assert!(res.is_err(), "Negative units MUST be rejected by check constraint");
+    assert!(
+        res.is_err(),
+        "Negative units MUST be rejected by check constraint"
+    );
     println!("[Phase 4 PASS] Negative amount rejected by database check constraint.");
 
     // 4. Test Zero Amount Rejection (Must fail SQL constraint units > 0)
@@ -174,7 +185,10 @@ async fn test_phase4_mathematical_precision_and_limits() -> Result<(), Box<dyn s
     .execute(&mut *tx)
     .await;
 
-    assert!(res_zero.is_err(), "Zero units MUST be rejected by check constraint");
+    assert!(
+        res_zero.is_err(),
+        "Zero units MUST be rejected by check constraint"
+    );
     println!("[Phase 4 PASS] Zero amount rejected by database check constraint.");
 
     Ok(())
