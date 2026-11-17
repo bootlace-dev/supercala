@@ -10,7 +10,7 @@ STACK: Rust 1.75+ / PostgreSQL 16+ / Tokio / SQLx
 # SuperCala
 
 [![CI](https://github.com/bootlace-dev/supercala/actions/workflows/ci.yml/badge.svg)](https://github.com/bootlace-dev/supercala/actions/workflows/ci.yml)
-[![License: MIT/Apache-2.0](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-1.75%2B-orange.svg)](https://www.rust-lang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%2B-blue.svg)](https://www.postgresql.org/)
 
@@ -95,4 +95,4 @@ cargo run --release -- --database-url "postgres://postgres:postgres@localhost:54
 
 * **Security Policy**: See [SECURITY.md](SECURITY.md) for private vulnerability reporting.
 * **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md) for pull request guidelines.
-* **License**: Dual-licensed under [MIT](LICENSE) / Apache-2.0. Built by `@bootlace-dev`.
+* **License**: Released under the [MIT License](LICENSE). Built by `@bootlace-dev`.

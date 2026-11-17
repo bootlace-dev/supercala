@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["bootlace-dev <bootlace-dev@users.noreply.github.com>"]
 description = "High-Assurance Concurrency Fuzzer & Invariant Validator for Bitcoin Double-Entry Ledgers (Galoy/Cala)"
-license = "Apache-2.0"
+license = "MIT"
 
 [dependencies]
 # Async Runtime & Concurrency
